@@ -1,0 +1,22 @@
+<template name="home">
+
+
+<div class="jumbotron"><h1>Scream recorder</h1></div>
+
+{{#if audioAvailable}}
+<button class="btn-record btn btn-default btn-lg">{{buttonLable}}</button>
+{{else}}
+<p>waiting to get audio</p>
+{{/if}}
+
+
+<ul class="screams">
+{{#each screams}}
+	{{>aScream}}
+{{/each}}
+</ul>
+</template>
+
+<template name="aScream">
+<li>{{formatDate itime "long"}} <audio controls src="{{url}}"></audio></li>
+</template>
