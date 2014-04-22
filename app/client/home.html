@@ -6,15 +6,26 @@
 
 <div class="scream">
 <div class="container">
-{{#if audioAvailable}}
+{{#if waitingForAudioCheck}}
+waiting to get audio (click on accept / zulassen above)
+{{else}}
+{{#if hasUserMediaSupport}}
 <button class="btn-record btn btn-danger btn-lg">
 
 <span class="glyphicon {{glyphicon}}"></span> 
 {{buttonLable}}</button>
-
-
 {{else}}
-waiting to get audio (click on accept / zulassen above)
+
+<span class="btn-record-file btn-file btn-danger btn-lg">
+
+<span class="glyphicon {{glyphicon}}"></span> 
+{{buttonLable}}
+
+<input class="audioFileInput" type="file" accept="audio/*" capture="microphone">
+</span>
+{{/if}}
+
+
 {{/if}}
 </div>
 </div>

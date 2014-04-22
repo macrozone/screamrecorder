@@ -6,11 +6,14 @@ Router.map ->
 recorder = null
 
 Session.set "recording", false
-Session.set "audioAvailable", false
+Session.set "waitingForAudioCheck", true
+Session.set "hasUserMediaSupport", false
 audioContext = null;
 
+
 initAudio = ->
-	Session.set "audioAvailable", false
+	Session.set "waitingForAudioCheck", true
+	Session.set "hasUserMediaSupport", false
 	Session.set "recording", false
 	#webkit shim
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -19,29 +22,38 @@ initAudio = ->
 	audioContext = new AudioContext;
 	
 	onError = (error) ->
-		console.error error
+		Session.set "waitingForAudioCheck", false
+		Session.set "hasUserMediaSupport", false
 	onAudioAvailable = (stream) ->
 		input = audioContext.createMediaStreamSource stream
 		recorder = new Recorder input
-		Session.set "audioAvailable", true
-		
-	navigator.getUserMedia {audio: true}, onAudioAvailable, onError
-
+		Session.set "waitingForAudioCheck", false
+		Session.set "hasUserMediaSupport", true
+	
+	if navigator?.getUserMedia?
+		navigator.getUserMedia {audio: true}, onAudioAvailable, onError
+	else 
+		onError()
 
 Template.home.rendered = ->
 	initAudio()
 
-Template.home.audioAvailable = ->
-	Session.get "audioAvailable"
+Template.home.waitingForAudioCheck = ->
+	Session.get "waitingForAudioCheck"
+Template.home.hasUserMediaSupport = ->
+	Session.get "hasUserMediaSupport"
 
+saveScreamBlob = (blob, done) ->
+	BinaryFileReader.read blob, (error, fileInfo) ->
+		Screams.insert
+			itime: new Date().getTime()
+			audio: fileInfo
+		done()
 stopRecording = ->
 	recorder.stop()
 	recorder.exportWAV (blob) ->
-		BinaryFileReader.read blob, (error, fileInfo) ->
-			Screams.insert
-				itime: new Date().getTime()
-				audio: fileInfo
-			recorder.clear()
+		saveScreamBlob blob, ->
+			recorder?.clear()
 
 Template.home.screams = ->
 	Screams.find {}, sort: itime: -1
@@ -52,6 +64,10 @@ Template.aScream.url = ->
 	URL.createObjectURL blob
 
 Template.home.events
+	"change .audioFileInput": (event) ->
+		for file in event.target.files
+			saveScreamBlob file, ->
+				console.log "done"
 	"click .btn-record": (event)->
 		recording = Session.get "recording"
 		Session.set "recording", !recording
