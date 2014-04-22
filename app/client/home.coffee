@@ -6,9 +6,11 @@ Router.map ->
 recorder = null
 
 Session.set "recording", false
+Session.set "audioAvailable", false
 audioContext = null;
 
 initAudio = ->
+	Session.set "audioAvailable", false
 	Session.set "recording", false
 	#webkit shim
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -59,7 +61,7 @@ Template.home.events
 			recorder.record()
 
 Template.home.buttonLable = ->
-	if Session.get "recording"
-		"Stop"
-	else
-		"Record"
+	if Session.get "recording" then "Stop" else "Record"
+
+Template.home.glyphicon = ->
+	if Session.get "recording" then "glyphicon-stop" else "glyphicon-record"
