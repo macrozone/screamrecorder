@@ -3,13 +3,21 @@
 
 <div class="jumbotron"><h1>Scream recorder</h1></div>
 
+
+<div class="scream">
+<div class="container">
 {{#if audioAvailable}}
 <button class="btn-record btn btn-danger btn-lg">
+
 <span class="glyphicon {{glyphicon}}"></span> 
 {{buttonLable}}</button>
+
+
 {{else}}
-<p>waiting to get audio (click on accept / zulassen above)</p>
+waiting to get audio (click on accept / zulassen above)
 {{/if}}
+</div>
+</div>
 
 
 <ul class="screams">
